@@ -5,6 +5,7 @@ import {
   getDoc,
   addDoc,
   updateDoc,
+  onSnapshot,
   query,
   where,
   orderBy,
@@ -41,6 +42,23 @@ export async function getUserPlants(userId: string): Promise<Plant[]> {
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => toPlant(d.id, d.data() as Record<string, unknown>));
+}
+
+export function subscribePlants(
+  userId: string,
+  onUpdate: (plants: Plant[]) => void
+): () => void {
+  const q = query(
+    collection(db, "plants"),
+    where("userId", "==", userId),
+    where("status", "==", "active"),
+    orderBy("createdAt", "desc")
+  );
+  return onSnapshot(q, (snap) => {
+    onUpdate(snap.docs.map((d) => toPlant(d.id, d.data() as Record<string, unknown>)));
+  }, (err) => {
+    console.error("[subscribePlants] Firestore error — composite index may be missing:", err);
+  });
 }
 
 export async function getPlant(plantId: string): Promise<Plant | null> {

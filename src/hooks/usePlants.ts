@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getUserPlants, logWatering, removePlant } from "@/lib/plants";
+import { subscribePlants, logWatering, removePlant } from "@/lib/plants";
 import type { Plant } from "@/types/plant";
 
 export function usePlants(userId: string | null) {
@@ -15,9 +15,11 @@ export function usePlants(userId: string | null) {
       return;
     }
     setLoading(true);
-    getUserPlants(userId)
-      .then(setPlants)
-      .finally(() => setLoading(false));
+    const unsub = subscribePlants(userId, (results) => {
+      setPlants(results);
+      setLoading(false);
+    });
+    return unsub;
   }, [userId]);
 
   async function water(plantId: string) {
