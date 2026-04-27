@@ -9,26 +9,36 @@ export default function Navbar() {
   const { user, loading } = useAuthContext();
 
   return (
-    <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <header className="sticky top-0 z-10 bg-cream border-b border-sand">
+      <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logomark-green.svg" alt="Demeter" width={28} height={23} priority />
-          <span className="font-semibold text-gray-900">Demeter</span>
+          <Image
+            src="/logomark-moss.svg"
+            alt="Demeter"
+            width={22}
+            height={18}
+            priority
+          />
+          <span className="font-display text-xl font-semibold text-ink tracking-tight">
+            Demeter
+          </span>
         </Link>
 
+        {/* Nav actions */}
         <nav className="flex items-center gap-3">
           {!loading && (
             user ? (
               <>
                 <Link
                   href="/plants/new"
-                  className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+                  className="rounded-full bg-moss px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
                 >
-                  + Add plant
+                  + Add
                 </Link>
                 <button
                   onClick={() => signOut()}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-sm text-taupe hover:text-ink transition-colors"
                 >
                   Sign out
                 </button>
@@ -36,7 +46,7 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={() => signInWithGoogle()}
-                className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+                className="rounded-full bg-moss px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 Sign in
               </button>

@@ -1,12 +1,25 @@
 @import "tailwindcss";
+@source "../";
 
-:root {
-  --background: #f9fafb;
-  --foreground: #111827;
+@theme {
+  /* ── Warm Terra palette ── */
+  --color-cream:     #FAF7F2;
+  --color-parchment: #F0EAE0;
+  --color-sand:      #E5DDD0;
+  --color-taupe:     #C4B8A7;
+  --color-ink:       #1A1611;
+  --color-terra:     #C2623F;
+  --color-moss:      #2D5C34;
+  --color-leaf:      #3DB054;
+  --color-gold:      #C49A1A;
+
+  /* ── Typography ── */
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-body:    var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
 }
