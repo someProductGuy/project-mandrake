@@ -17,7 +17,7 @@ const IDENTIFY_PROMPT = `You are a houseplant expert. Analyze these photos of a 
 export async function identifyPlant(
   photoBase64s: string[]
 ): Promise<GeminiPlantIdentification> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const parts: Part[] = [
     { text: IDENTIFY_PROMPT },
@@ -27,7 +27,9 @@ export async function identifyPlant(
   ];
 
   const result = await model.generateContent(parts);
-  const text = result.response.text().trim();
+  const raw = result.response.text().trim();
+  // Gemini sometimes wraps JSON in markdown fences despite instructions
+  const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
   return JSON.parse(text) as GeminiPlantIdentification;
 }
 
@@ -36,7 +38,7 @@ export async function askAboutPlant(
   plantContext: string,
   recentPhotoUrl?: string
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const systemContext = `You are a helpful houseplant expert. The user is asking about their specific plant. Here is what we know about it:\n\n${plantContext}\n\nAnswer helpfully and concisely.`;
 

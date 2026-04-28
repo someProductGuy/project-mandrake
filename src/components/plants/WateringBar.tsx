@@ -7,46 +7,47 @@ interface WateringBarProps {
   frequencyDays: number;
 }
 
-function getBarState(fill: number): { color: string; label: string } {
-  if (fill > 0.5) return { color: "bg-green-500", label: "Good" };
-  if (fill > 0.2) return { color: "bg-yellow-400", label: "Soon" };
-  if (fill > 0) return { color: "bg-orange-500", label: "Soon" };
-  return { color: "bg-red-500", label: "Water now" };
+function barColor(fill: number): string {
+  if (fill > 0.3) return "bg-leaf";
+  if (fill > 0)   return "bg-gold";
+  return "bg-terra";
 }
 
 export default function WateringBar({ lastWatered, frequencyDays }: WateringBarProps) {
-  const [fill, setFill] = useState(1);
+  const [fill, setFill]         = useState(1);
+  const [daysLeft, setDaysLeft] = useState(frequencyDays);
 
   useEffect(() => {
     function compute() {
-      const now = Date.now();
-      const intervalMs = frequencyDays * 24 * 60 * 60 * 1000;
-      const elapsed = now - lastWatered;
-      setFill(Math.max(0, 1 - elapsed / intervalMs));
+      const now        = Date.now();
+      const intervalMs = frequencyDays * 86_400_000;
+      const remaining  = lastWatered + intervalMs - now;
+      setFill(Math.max(0, remaining / intervalMs));
+      setDaysLeft(Math.ceil(remaining / 86_400_000));
     }
-
     compute();
-    // update every minute
     const id = setInterval(compute, 60_000);
     return () => clearInterval(id);
   }, [lastWatered, frequencyDays]);
 
-  const { color, label } = getBarState(fill);
-  const pct = Math.round(fill * 100);
+  const isOverdue = daysLeft <= 0;
+  const pct       = Math.round(fill * 100);
 
   return (
     <div className="w-full">
-      <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+      {/* Track */}
+      <div className="h-1 w-full rounded-full bg-sand overflow-hidden">
         <div
-          className={`h-full rounded-full transition-all duration-1000 ${color}`}
-          style={{ width: `${pct}%` }}
+          className={`h-full rounded-full transition-all duration-1000 ${barColor(fill)}`}
+          style={{ width: `${isOverdue ? 4 : pct}%` }}
         />
       </div>
-      <p className="mt-1 text-xs text-gray-500">
-        {fill <= 0 ? (
-          <span className="font-semibold text-red-500">Water now</span>
+      {/* Label */}
+      <p className="mt-1 text-xs">
+        {isOverdue ? (
+          <span className="text-terra font-medium">Overdue</span>
         ) : (
-          label
+          <span className="text-taupe">{daysLeft}d</span>
         )}
       </p>
     </div>

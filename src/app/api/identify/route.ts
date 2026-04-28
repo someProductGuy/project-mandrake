@@ -8,6 +8,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No photos provided" }, { status: 400 });
   }
 
-  const result = await identifyPlant(photos);
-  return NextResponse.json(result);
+  try {
+    const result = await identifyPlant(photos);
+    return NextResponse.json(result);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[identify] Gemini error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

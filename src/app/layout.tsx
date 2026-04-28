@@ -1,10 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/ui/AuthProvider";
 import Navbar from "@/components/ui/Navbar";
 
-const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Demeter",
@@ -14,18 +24,21 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#16a34a",
+  themeColor: "#2D5C34",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${dmSans.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col bg-cream text-ink font-body">
         <AuthProvider>
           <Navbar />
-          <main className="flex-1 mx-auto w-full max-w-6xl px-4 py-6">
+          <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-6">
             {children}
           </main>
         </AuthProvider>
