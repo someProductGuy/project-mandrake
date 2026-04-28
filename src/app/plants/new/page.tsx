@@ -37,7 +37,8 @@ export default function NewPlantPage() {
   const [nickname, setNickname]     = useState("");
   const [saving, setSaving]         = useState(false);
   const [error, setError]           = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef  = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
 
   function onFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []).slice(0, 4);
@@ -52,6 +53,8 @@ export default function NewPlantPage() {
     Promise.all(readers).then((results) => {
       setPhotos((prev) => [...prev, ...results].slice(0, 4));
     });
+    // Reset so the same file can be selected again after removal
+    e.target.value = "";
   }
 
   function removePhoto(idx: number) {
@@ -138,22 +141,41 @@ export default function NewPlantPage() {
               </div>
             ))}
             {photos.length < 4 && (
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="aspect-square rounded-2xl border-2 border-dashed border-taupe/50 flex flex-col items-center justify-center text-taupe hover:border-moss hover:text-moss transition-colors"
-              >
-                <span className="text-2xl leading-none">+</span>
-                <span className="text-xs mt-1.5">Add photo</span>
-              </button>
+              <div className="col-span-2 aspect-[2/1] rounded-2xl border-2 border-dashed border-taupe/50 flex items-center justify-center gap-2 px-4">
+                <button
+                  onClick={() => cameraRef.current?.click()}
+                  className="flex flex-col items-center gap-1.5 flex-1 text-taupe hover:text-moss transition-colors"
+                >
+                  <CameraIcon />
+                  <span className="text-xs font-medium">Camera</span>
+                </button>
+                <div className="h-8 w-px bg-taupe/30" />
+                <button
+                  onClick={() => galleryRef.current?.click()}
+                  className="flex flex-col items-center gap-1.5 flex-1 text-taupe hover:text-moss transition-colors"
+                >
+                  <GalleryIcon />
+                  <span className="text-xs font-medium">Library</span>
+                </button>
+              </div>
             )}
           </div>
 
+          {/* Camera input — opens device camera directly */}
           <input
-            ref={fileRef}
+            ref={cameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={onFilesSelected}
+          />
+          {/* Gallery input — opens photo library picker */}
+          <input
+            ref={galleryRef}
             type="file"
             accept="image/*"
             multiple
-            capture="environment"
             className="hidden"
             onChange={onFilesSelected}
           />
@@ -240,5 +262,24 @@ function Field({
         {value}
       </p>
     </div>
+  );
+}
+
+function CameraIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+      <circle cx="12" cy="13" r="4" />
+    </svg>
+  );
+}
+
+function GalleryIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <polyline points="21 15 16 10 5 21" />
+    </svg>
   );
 }
