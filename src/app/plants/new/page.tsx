@@ -65,7 +65,8 @@ export default function NewPlantPage() {
     setIdentifying(true);
     setError(null);
     try {
-      const base64s = photos.map((p) => p.split(",")[1]);
+      const compressed = await Promise.all(photos.map((p) => compressImage(p, 800, 0.75)));
+      const base64s = compressed.map((p) => p.split(",")[1]);
       const res  = await fetch("/api/identify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
