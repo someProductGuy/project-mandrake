@@ -259,7 +259,7 @@ function Field({
   return (
     <div>
       <p className="text-xs font-medium uppercase tracking-wider text-taupe">{label}</p>
-      <p className={`text-sm mt-0.5 leading-snug ${highlight ? "text-terra" : "text-ink"}`}>
+      <p className={`text-sm mt-0.5 leading-snug ${highlight ? "text-moss" : "text-ink"}`}>
         {value}
       </p>
     </div>
