@@ -105,7 +105,8 @@ export default function NewPlantPage() {
         wateringFrequencyDays: identified.wateringFrequencyDays,
         lightRequirement:     identified.lightRequirement,
         humidityNotes:        identified.humidityNotes,
-        careNotes:            `${identified.careNotes}\n\nHealth notes: ${identified.healthNotes}`,
+        careNotes:            identified.careNotes,
+        healthNotes:          identified.healthNotes,
         status:               "active",
       });
 

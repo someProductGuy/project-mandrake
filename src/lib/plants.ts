@@ -28,6 +28,7 @@ function toPlant(id: string, data: Record<string, unknown>): Plant {
     lightRequirement: data.lightRequirement as string,
     humidityNotes: data.humidityNotes as string,
     careNotes: data.careNotes as string,
+    healthNotes: (data.healthNotes as string) ?? "",
     status: (data.status as Plant["status"]) ?? "active",
     createdAt: (data.createdAt as Timestamp)?.toMillis() ?? Date.now(),
   };

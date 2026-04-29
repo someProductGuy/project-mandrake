@@ -19,6 +19,7 @@ export interface Plant {
   lightRequirement: string;
   humidityNotes: string;
   careNotes: string;
+  healthNotes: string;
   status: PlantStatus;
   createdAt: number;
 }

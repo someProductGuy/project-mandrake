@@ -162,6 +162,9 @@ Care notes: ${plant.careNotes}
         <InfoRow label="Light"    value={plant.lightRequirement} />
         <InfoRow label="Humidity" value={plant.humidityNotes} />
         <InfoRow label="Notes"    value={plant.careNotes} />
+        {plant.healthNotes && (
+          <InfoRow label="Observations" value={plant.healthNotes} />
+        )}
       </div>
 
       {/* Ask Gemini */}
