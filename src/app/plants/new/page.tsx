@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useAuthContext } from "@/components/ui/AuthProvider";
 import { addPlant } from "@/lib/plants";
 import { storage } from "@/lib/firebase";
@@ -131,7 +130,8 @@ export default function NewPlantPage() {
           <div className="grid grid-cols-2 gap-3">
             {photos.map((src, i) => (
               <div key={i} className="relative aspect-square rounded-2xl overflow-hidden bg-sand">
-                <Image src={src} alt={`Photo ${i + 1}`} fill className="object-cover" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={`Photo ${i + 1}`} className="absolute inset-0 h-full w-full object-cover" />
                 <button
                   onClick={() => removePhoto(i)}
                   className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink/60 text-white text-xs"
