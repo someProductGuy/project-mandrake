@@ -81,4 +81,5 @@ export interface GeminiPlantIdentification {
 export interface GeminiHealthCheckIn {
   healthNotes: string;
   healthStatus: "healthy" | "concern";
+  bestPhotoIndex: number;
 }

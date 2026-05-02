@@ -53,7 +53,8 @@ Previous observation: ${plantContext.previousHealthNotes}
 Please analyze these new photos and respond with a JSON object (no markdown, just raw JSON):
 {
   "healthNotes": "string (describe what you observe — leaf colour and texture, soil condition, overall vitality, any new concerns or improvements since last check)",
-  "healthStatus": "healthy" or "concern"
+  "healthStatus": "healthy" or "concern",
+  "bestPhotoIndex": number (0-based index of the photo that would make the best cover photo — best framing, clearest view of the whole plant, good lighting)
 }
 Use "concern" if you see yellowing, wilting, pests, root issues, or any other problem that warrants attention. Use "healthy" if the plant looks good.`;
 

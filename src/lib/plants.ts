@@ -160,6 +160,7 @@ export async function updateHealthCheckIn(
     healthStatus: HealthStatus;
     photoUrl: string | null;
     createdAt: number; // needed to compute next interval
+    coverPhotoUrl?: string;
   }
 ): Promise<void> {
   const now = Date.now();
@@ -169,13 +170,18 @@ export async function updateHealthCheckIn(
     lastHealthCheckIn: now,
   });
 
+  const plantUpdate: Record<string, unknown> = {
+    healthNotes: opts.healthNotes,
+    healthStatus: opts.healthStatus,
+    lastHealthCheckIn: serverTimestamp(),
+    nextHealthCheckIn,
+  };
+  if (opts.coverPhotoUrl !== undefined) {
+    plantUpdate.coverPhotoUrl = opts.coverPhotoUrl;
+  }
+
   await Promise.all([
-    updateDoc(doc(db, "plants", plantId), {
-      healthNotes: opts.healthNotes,
-      healthStatus: opts.healthStatus,
-      lastHealthCheckIn: serverTimestamp(),
-      nextHealthCheckIn,
-    }),
+    updateDoc(doc(db, "plants", plantId), plantUpdate),
     addDoc(collection(db, "plants", plantId, "careLogs"), {
       action: "photo",
       timestamp: serverTimestamp(),
@@ -183,6 +189,14 @@ export async function updateHealthCheckIn(
       note: `Health check-in: ${opts.healthNotes}`,
     }),
   ]);
+}
+
+export function storagePathFromUrl(url: string): string {
+  return decodeURIComponent(url.split("/o/")[1].split("?")[0]);
+}
+
+export async function updatePlantCoverPhoto(plantId: string, coverPhotoUrl: string): Promise<void> {
+  await updateDoc(doc(db, "plants", plantId), { coverPhotoUrl });
 }
 
 /**

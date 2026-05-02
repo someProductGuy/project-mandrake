@@ -11,10 +11,12 @@ import {
   removePlant,
   addCareLog,
   updateHealthCheckIn,
+  updatePlantCoverPhoto,
+  storagePathFromUrl,
   ackSeasonalNote,
 } from "@/lib/plants";
 import { storage } from "@/lib/firebase";
-import { ref, uploadString, getDownloadURL } from "firebase/storage";
+import { ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
 import { useAuthContext } from "@/components/ui/AuthProvider";
 import { useUserPrefs } from "@/hooks/useUserPrefs";
 import WateringBar from "@/components/plants/WateringBar";
@@ -51,6 +53,9 @@ export default function PlantDetailPage() {
 
   const photoRef = useRef<HTMLInputElement>(null);
   const checkInPhotoRef = useRef<HTMLInputElement>(null);
+  const coverPhotoInputRef = useRef<HTMLInputElement>(null);
+
+  const [replacingCoverPhoto, setReplacingCoverPhoto] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -121,6 +126,26 @@ export default function PlantDetailPage() {
     reader.readAsDataURL(file);
   }
 
+  async function handleReplaceCoverPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user || !plant) return;
+    setReplacingCoverPhoto(true);
+    try {
+      const dataUrl = await fileToBase64(file);
+      const storageRef = ref(storage, `plants/${user.uid}/${plant.id}/cover-${Date.now()}.jpg`);
+      await uploadString(storageRef, dataUrl, "data_url");
+      const newUrl = await getDownloadURL(storageRef);
+      if (plant.coverPhotoUrl) {
+        try { await deleteObject(ref(storage, storagePathFromUrl(plant.coverPhotoUrl))); } catch { /* best effort */ }
+      }
+      await updatePlantCoverPhoto(plant.id, newUrl);
+      setPlant((p) => p ? { ...p, coverPhotoUrl: newUrl } : p);
+    } finally {
+      setReplacingCoverPhoto(false);
+      e.target.value = "";
+    }
+  }
+
   async function handleCheckInPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0 || !user || !plant) return;
@@ -152,7 +177,14 @@ export default function PlantDetailPage() {
           previousHealthNotes: plant.healthNotes,
         }),
       });
-      const data = (await res.json()) as { healthNotes: string; healthStatus: "healthy" | "concern" };
+      const data = (await res.json()) as { healthNotes: string; healthStatus: "healthy" | "concern"; bestPhotoIndex: number };
+
+      const bestPhotoUrl = uploadedUrls[data.bestPhotoIndex ?? 0] ?? uploadedUrls[0];
+
+      // Delete old cover photo and replace with best check-in photo
+      if (plant.coverPhotoUrl) {
+        try { await deleteObject(ref(storage, storagePathFromUrl(plant.coverPhotoUrl))); } catch { /* best effort */ }
+      }
 
       // Persist to Firestore
       await updateHealthCheckIn(plant.id, {
@@ -160,12 +192,13 @@ export default function PlantDetailPage() {
         healthStatus: data.healthStatus,
         photoUrl: uploadedUrls[0] ?? null,
         createdAt: plant.createdAt,
+        coverPhotoUrl: bestPhotoUrl,
       });
 
       const now = Date.now();
       setPlant((p) =>
         p
-          ? { ...p, healthNotes: data.healthNotes, healthStatus: data.healthStatus, lastHealthCheckIn: now }
+          ? { ...p, healthNotes: data.healthNotes, healthStatus: data.healthStatus, lastHealthCheckIn: now, coverPhotoUrl: bestPhotoUrl }
           : p
       );
       setCheckInResult(data);
@@ -233,12 +266,34 @@ Care notes: ${plant.careNotes}
       </Link>
 
       {/* Cover photo */}
-      <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-sand">
-        {plant.coverPhotoUrl ? (
-          <Image src={plant.coverPhotoUrl} alt={displayName} fill className="object-cover" />
-        ) : (
-          <div className="flex h-full items-center justify-center text-6xl opacity-20 select-none">🪴</div>
-        )}
+      <div className="relative aspect-video w-full">
+        <button
+          type="button"
+          onClick={() => coverPhotoInputRef.current?.click()}
+          disabled={replacingCoverPhoto}
+          className="absolute inset-0 rounded-2xl overflow-hidden bg-sand w-full"
+          aria-label="Replace cover photo"
+        >
+          {plant.coverPhotoUrl ? (
+            <Image src={plant.coverPhotoUrl} alt={displayName} fill className="object-cover" />
+          ) : (
+            <div className="flex h-full items-center justify-center text-6xl opacity-20 select-none">🪴</div>
+          )}
+          <div className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-xs text-white backdrop-blur-sm">
+            {replacingCoverPhoto ? (
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <span>📷</span>
+            )}
+          </div>
+        </button>
+        <input
+          ref={coverPhotoInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleReplaceCoverPhoto}
+        />
       </div>
 
       {/* Name */}
