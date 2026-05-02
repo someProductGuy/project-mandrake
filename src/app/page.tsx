@@ -3,16 +3,18 @@
 import Image from "next/image";
 import { useAuthContext } from "@/components/ui/AuthProvider";
 import { usePlants } from "@/hooks/usePlants";
+import { useUserPrefs } from "@/hooks/useUserPrefs";
 import PlantGrid from "@/components/plants/PlantGrid";
 import { signInWithGoogle } from "@/lib/auth";
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuthContext();
   const { plants, loading: plantsLoading, water } = usePlants(user?.uid ?? null);
+  const prefs = useUserPrefs(user?.uid ?? null);
 
   if (authLoading) return <LoadingSpinner />;
   if (!user) return <SignInPrompt />;
-  if (plantsLoading) return <LoadingSpinner />;
+  if (plantsLoading || prefs.loading) return <LoadingSpinner />;
 
   const overdueCount = plants.filter(
     (p) => Date.now() - p.lastWatered > p.wateringFrequencyDays * 86_400_000
@@ -29,7 +31,13 @@ export default function DashboardPage() {
         <p className="mb-5 text-sm text-taupe">All plants are happy</p>
       )}
 
-      <PlantGrid plants={plants} onWater={water} />
+      <PlantGrid
+        plants={plants}
+        onWater={water}
+        hemisphere={prefs.hemisphere}
+        photoCheckInsEnabled={prefs.photoCheckInsEnabled}
+        seasonalRemindersEnabled={prefs.seasonalRemindersEnabled}
+      />
     </div>
   );
 }

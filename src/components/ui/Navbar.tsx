@@ -36,6 +36,13 @@ export default function Navbar() {
                 >
                   + Add
                 </Link>
+                <Link
+                  href="/settings"
+                  className="text-sm text-taupe hover:text-ink transition-colors"
+                  aria-label="Settings"
+                >
+                  ⚙️
+                </Link>
                 <button
                   onClick={() => signOut()}
                   className="text-sm text-taupe hover:text-ink transition-colors"

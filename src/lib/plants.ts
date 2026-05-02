@@ -13,9 +13,29 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { Plant, CareLog } from "@/types/plant";
+import type { Plant, CareLog, HealthStatus, SeasonalCare, SeasonalAck, Season } from "@/types/plant";
+import { computeNextHealthCheckIn } from "./seasons";
 
 function toPlant(id: string, data: Record<string, unknown>): Plant {
+  const createdAt = (data.createdAt as Timestamp)?.toMillis() ?? Date.now();
+  const lastHealthCheckIn =
+    data.lastHealthCheckIn != null
+      ? (data.lastHealthCheckIn as Timestamp)?.toMillis?.() ??
+        (data.lastHealthCheckIn as number)
+      : null;
+  const healthStatus: HealthStatus =
+    (data.healthStatus as HealthStatus) ?? "unknown";
+
+  // Compute nextHealthCheckIn if not stored (e.g. pre-feature plants)
+  const storedNext =
+    data.nextHealthCheckIn != null
+      ? (data.nextHealthCheckIn as Timestamp)?.toMillis?.() ??
+        (data.nextHealthCheckIn as number)
+      : null;
+  const nextHealthCheckIn =
+    storedNext ??
+    computeNextHealthCheckIn({ createdAt, healthStatus, lastHealthCheckIn });
+
   return {
     id,
     userId: data.userId as string,
@@ -30,7 +50,12 @@ function toPlant(id: string, data: Record<string, unknown>): Plant {
     careNotes: data.careNotes as string,
     healthNotes: (data.healthNotes as string) ?? "",
     status: (data.status as Plant["status"]) ?? "active",
-    createdAt: (data.createdAt as Timestamp)?.toMillis() ?? Date.now(),
+    createdAt,
+    healthStatus,
+    lastHealthCheckIn,
+    nextHealthCheckIn,
+    seasonalCare: (data.seasonalCare as SeasonalCare) ?? null,
+    lastSeasonalAck: (data.lastSeasonalAck as SeasonalAck) ?? null,
   };
 }
 
@@ -121,5 +146,54 @@ export async function addCareLog(
   await addDoc(collection(db, "plants", plantId, "careLogs"), {
     ...log,
     timestamp: serverTimestamp(),
+  });
+}
+
+/**
+ * Record a completed health check-in. Updates healthNotes, healthStatus,
+ * lastHealthCheckIn, and recomputes nextHealthCheckIn.
+ */
+export async function updateHealthCheckIn(
+  plantId: string,
+  opts: {
+    healthNotes: string;
+    healthStatus: HealthStatus;
+    photoUrl: string | null;
+    createdAt: number; // needed to compute next interval
+  }
+): Promise<void> {
+  const now = Date.now();
+  const nextHealthCheckIn = computeNextHealthCheckIn({
+    createdAt: opts.createdAt,
+    healthStatus: opts.healthStatus,
+    lastHealthCheckIn: now,
+  });
+
+  await Promise.all([
+    updateDoc(doc(db, "plants", plantId), {
+      healthNotes: opts.healthNotes,
+      healthStatus: opts.healthStatus,
+      lastHealthCheckIn: serverTimestamp(),
+      nextHealthCheckIn,
+    }),
+    addDoc(collection(db, "plants", plantId, "careLogs"), {
+      action: "photo",
+      timestamp: serverTimestamp(),
+      photoUrl: opts.photoUrl,
+      note: `Health check-in: ${opts.healthNotes}`,
+    }),
+  ]);
+}
+
+/**
+ * Acknowledge that the user has seen the seasonal care note for the
+ * current season, dismissing the badge until next season.
+ */
+export async function ackSeasonalNote(
+  plantId: string,
+  season: Season
+): Promise<void> {
+  await updateDoc(doc(db, "plants", plantId), {
+    lastSeasonalAck: { season, year: new Date().getFullYear() },
   });
 }

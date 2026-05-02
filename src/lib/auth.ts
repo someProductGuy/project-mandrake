@@ -7,6 +7,7 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
+import { inferHemisphere } from "./seasons";
 
 const provider = new GoogleAuthProvider();
 
@@ -32,6 +33,9 @@ async function ensureUserDoc(user: User): Promise<void> {
       email: user.email,
       fcmToken: null,
       notificationsEnabled: false,
+      photoCheckInsEnabled: true,
+      seasonalRemindersEnabled: true,
+      hemisphere: inferHemisphere(),
     });
   }
 }

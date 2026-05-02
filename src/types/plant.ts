@@ -7,6 +7,24 @@ export type CareLogAction =
   | "photo"
   | "note";
 
+export type HealthStatus = "healthy" | "concern" | "unknown";
+
+export type Hemisphere = "northern" | "southern" | "tropical";
+
+export type Season = "spring" | "summer" | "fall" | "winter";
+
+export interface SeasonalCare {
+  spring: string | null;
+  summer: string | null;
+  fall: string | null;
+  winter: string | null;
+}
+
+export interface SeasonalAck {
+  season: Season;
+  year: number;
+}
+
 export interface Plant {
   id: string;
   userId: string;
@@ -22,6 +40,13 @@ export interface Plant {
   healthNotes: string;
   status: PlantStatus;
   createdAt: number;
+  // Health check-in
+  healthStatus: HealthStatus;
+  lastHealthCheckIn: number | null; // unix ms timestamp
+  nextHealthCheckIn: number;        // unix ms timestamp
+  // Seasonal care
+  seasonalCare: SeasonalCare | null;
+  lastSeasonalAck: SeasonalAck | null;
 }
 
 export interface CareLog {
@@ -37,6 +62,9 @@ export interface User {
   email: string;
   fcmToken: string | null;
   notificationsEnabled: boolean;
+  photoCheckInsEnabled: boolean;
+  seasonalRemindersEnabled: boolean;
+  hemisphere: Hemisphere;
 }
 
 export interface GeminiPlantIdentification {
@@ -47,4 +75,10 @@ export interface GeminiPlantIdentification {
   humidityNotes: string;
   careNotes: string;
   healthNotes: string;
+  seasonalCare: SeasonalCare | null;
+}
+
+export interface GeminiHealthCheckIn {
+  healthNotes: string;
+  healthStatus: "healthy" | "concern";
 }

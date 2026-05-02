@@ -96,6 +96,7 @@ export default function NewPlantPage() {
         coverPhotoUrl = await getDownloadURL(storageRef);
       }
 
+      const now = Date.now();
       await addPlant({
         userId:               user.uid,
         commonName:           identified.commonName,
@@ -108,6 +109,13 @@ export default function NewPlantPage() {
         careNotes:            identified.careNotes,
         healthNotes:          identified.healthNotes,
         status:               "active",
+        // Health check-in: new plants get their first check-in after 30 days
+        healthStatus:         "unknown",
+        lastHealthCheckIn:    null,
+        nextHealthCheckIn:    now + 30 * 86_400_000,
+        // Seasonal care from Gemini
+        seasonalCare:         identified.seasonalCare ?? null,
+        lastSeasonalAck:      null,
       });
 
       router.push("/");

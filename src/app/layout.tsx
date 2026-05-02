@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   title: "Demeter",
   description: "Track the care and maintenance of your houseplant collection",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Demeter" },
 };
 

@@ -2,15 +2,24 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { Plant } from "@/types/plant";
+import type { Plant, Hemisphere } from "@/types/plant";
 import PlantTile from "./PlantTile";
 
 interface PlantGridProps {
   plants: Plant[];
   onWater: (id: string) => Promise<void>;
+  hemisphere: Hemisphere;
+  photoCheckInsEnabled: boolean;
+  seasonalRemindersEnabled: boolean;
 }
 
-export default function PlantGrid({ plants, onWater }: PlantGridProps) {
+export default function PlantGrid({
+  plants,
+  onWater,
+  hemisphere,
+  photoCheckInsEnabled,
+  seasonalRemindersEnabled,
+}: PlantGridProps) {
   if (plants.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-28 text-center">
@@ -38,7 +47,14 @@ export default function PlantGrid({ plants, onWater }: PlantGridProps) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {plants.map((plant) => (
-        <PlantTile key={plant.id} plant={plant} onWater={onWater} />
+        <PlantTile
+          key={plant.id}
+          plant={plant}
+          onWater={onWater}
+          hemisphere={hemisphere}
+          photoCheckInsEnabled={photoCheckInsEnabled}
+          seasonalRemindersEnabled={seasonalRemindersEnabled}
+        />
       ))}
     </div>
   );
