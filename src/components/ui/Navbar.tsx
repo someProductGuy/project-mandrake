@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { Settings2 } from "lucide-react";
 import { signOut, signInWithGoogle } from "@/lib/auth";
 import { useAuthContext } from "./AuthProvider";
 
@@ -41,7 +42,7 @@ export default function Navbar() {
                   className="text-sm text-taupe hover:text-ink transition-colors"
                   aria-label="Settings"
                 >
-                  ⚙️
+                  <Settings2 className="w-4 h-4" />
                 </Link>
                 <button
                   onClick={() => signOut()}

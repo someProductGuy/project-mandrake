@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  Camera, Leaf, Droplets, Sprout, Shovel, FileText,
+  TriangleAlert, CircleCheck,
+} from "lucide-react";
 import {
   getPlant,
   getCareLogs,
@@ -277,13 +281,13 @@ Care notes: ${plant.careNotes}
           {plant.coverPhotoUrl ? (
             <Image src={plant.coverPhotoUrl} alt={displayName} fill className="object-cover" />
           ) : (
-            <div className="flex h-full items-center justify-center text-6xl opacity-20 select-none">🪴</div>
+            <div className="flex h-full items-center justify-center opacity-20"><Sprout className="w-16 h-16 text-taupe" /></div>
           )}
           <div className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-xs text-white backdrop-blur-sm">
             {replacingCoverPhoto ? (
               <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
-              <span>📷</span>
+              <Camera className="w-3.5 h-3.5" />
             )}
           </div>
         </button>
@@ -309,7 +313,7 @@ Care notes: ${plant.careNotes}
       {showSeasonalCard && (
         <div className="rounded-2xl bg-moss/5 border border-moss/20 p-4 flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-base">🌿</span>
+            <Leaf className="w-4 h-4 text-moss" />
             <p className="text-sm font-medium text-ink capitalize">{currentSeason} care tip</p>
           </div>
           <p className="text-sm text-ink/80 leading-snug">{seasonalNote}</p>
@@ -320,7 +324,7 @@ Care notes: ${plant.careNotes}
       {checkInDue && !checkInResult && (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-base">📷</span>
+            <Camera className="w-4 h-4 text-amber-600" />
             <p className="text-sm font-medium text-ink">Time for a health check-in</p>
           </div>
 
@@ -375,7 +379,9 @@ Care notes: ${plant.careNotes}
           }`}
         >
           <div className="flex items-center gap-2">
-            <span>{checkInResult.healthStatus === "concern" ? "⚠️" : "✅"}</span>
+            {checkInResult.healthStatus === "concern"
+              ? <TriangleAlert className="w-4 h-4 text-terra" />
+              : <CircleCheck className="w-4 h-4 text-moss" />}
             <p className="text-sm font-medium text-ink">
               {checkInResult.healthStatus === "concern" ? "Some concerns noted" : "Looking healthy!"}
             </p>
@@ -396,8 +402,9 @@ Care notes: ${plant.careNotes}
           disabled={watering}
           className="w-full rounded-xl bg-moss/10 border border-moss/20 py-2.5 text-sm font-medium text-moss hover:bg-moss/20 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
         >
-          <span>💧</span>
-          {watering ? "Logging…" : "Mark as watered"}
+          {watering ? "Logging…" : (
+            <><Droplets className="w-4 h-4" /> Mark as watered</>
+          )}
         </button>
       </div>
 
@@ -480,7 +487,7 @@ Care notes: ${plant.careNotes}
         ) : (
           logs.slice(0, 10).map((l) => (
             <div key={l.id} className="flex items-center gap-3 text-sm">
-              <span className="text-base">{actionEmoji(l.action)}</span>
+              <ActionIcon action={l.action} />
               <span className="capitalize text-ink">{l.action}</span>
               <span className="ml-auto text-xs text-taupe">
                 {new Date(l.timestamp).toLocaleDateString()}
@@ -511,15 +518,15 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function actionEmoji(action: CareLog["action"]) {
-  const map: Record<CareLog["action"], string> = {
-    watered:    "💧",
-    fertilized: "🌱",
-    repotted:   "🪴",
-    photo:      "📷",
-    note:       "📝",
+function ActionIcon({ action }: { action: CareLog["action"] }) {
+  const icons: Record<CareLog["action"], ReactNode> = {
+    watered:    <Droplets className="w-4 h-4 text-moss" />,
+    fertilized: <Sprout className="w-4 h-4 text-moss" />,
+    repotted:   <Shovel className="w-4 h-4 text-taupe" />,
+    photo:      <Camera className="w-4 h-4 text-taupe" />,
+    note:       <FileText className="w-4 h-4 text-taupe" />,
   };
-  return map[action] ?? "•";
+  return <span className="flex items-center">{icons[action] ?? <span className="w-4 h-4" />}</span>;
 }
 
 function fileToBase64(file: File): Promise<string> {
