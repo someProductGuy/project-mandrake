@@ -5,7 +5,15 @@
       "Bash(git remote *)",
       "Bash(git branch *)",
       "Bash(git push *)",
-      "mcp__plugin_firebase_firebase__firebase_login"
+      "mcp__plugin_firebase_firebase__firebase_login",
+      "Bash(npx tsc *)",
+      "Bash(node -e \"const f = require\\('next/font/google'\\); console.log\\(typeof f.Cormorant_Garamond, typeof f.DM_Sans\\);\")",
+      "mcp__plugin_firebase_firebase__firebase_get_environment",
+      "mcp__plugin_firebase_firebase__firebase_get_security_rules",
+      "mcp__plugin_firebase_firebase__firebase_validate_security_rules",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(npx firebase-tools *)"
     ]
   }
 }

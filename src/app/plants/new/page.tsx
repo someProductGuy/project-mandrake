@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/components/ui/AuthProvider";
 import { addPlant } from "@/lib/plants";
@@ -127,8 +128,11 @@ export default function NewPlantPage() {
   }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold text-ink mb-6">Add a plant</h1>
+    <div className="flex flex-col gap-5">
+      <Link href="/" className="text-sm text-taupe hover:text-ink transition-colors">
+        ← Back
+      </Link>
+      <h1 className="font-display text-3xl font-semibold text-ink">Add a plant</h1>
 
       {/* ── Upload step ── */}
       {step === "upload" && (
