@@ -304,9 +304,9 @@ Care notes: ${plant.careNotes}
       <div>
         <h1 className="font-display text-3xl font-semibold text-ink leading-tight">{displayName}</h1>
         {plant.nickname && (
-          <p className="font-display text-base italic text-taupe">{plant.commonName}</p>
+          <p className="font-display text-base italic text-ink/60">{plant.commonName}</p>
         )}
-        <p className="font-display text-sm italic text-taupe/70">{plant.scientificName}</p>
+        <p className="font-display text-sm italic text-ink/50">{plant.scientificName}</p>
       </div>
 
       {/* ── Seasonal care card ── */}
